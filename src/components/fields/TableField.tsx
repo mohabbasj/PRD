@@ -77,7 +77,13 @@ export default function TableField({
     const value = typeof row[col.key] === 'string' ? (row[col.key] as string) : '';
     const set = (v: string) => setCell(row._id, col.key, v);
     const onKeyDown = handleKeyDown(rowIndex, col.key);
-    const shared = { value, onChange: set, onKeyDown, bordered: false as const };
+    const shared = {
+      value,
+      onChange: set,
+      onKeyDown,
+      bordered: false as const,
+      'aria-label': `${col.label}, row ${rowIndex + 1}`,
+    };
     return (
       <div id={cellId(row._id, col.key)} tabIndex={-1}>
         {col.type === 'date' ? (

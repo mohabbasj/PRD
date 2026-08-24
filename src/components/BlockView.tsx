@@ -48,7 +48,7 @@ function KvRow({
       </th>
       <td className="border border-rule px-1 py-0.5 align-top">
         {entry.type === 'longtext' ? (
-          <LongTextInput value={text} onChange={onChange} lines={1} />
+          <LongTextInput value={text} onChange={onChange} lines={1} aria-label={entry.label} />
         ) : entry.type === 'url' ? (
           <UrlInput value={text} onChange={onChange} />
         ) : entry.type === 'yesno' ? (
@@ -60,7 +60,7 @@ function KvRow({
             options={entry.options ?? []}
           />
         ) : (
-          <TextInput value={text} onChange={onChange} bordered={false} />
+          <TextInput value={text} onChange={onChange} bordered={false} aria-label={entry.label} />
         )}
       </td>
     </tr>
@@ -78,7 +78,16 @@ export default function BlockView({
   setValue: (key: string, value: FieldValue) => void;
   metricOptions: string[];
 }) {
-  const renderField = (field: Field) => {
+  // The nearest heading above a field is its accessible name.
+  const labelFor = (index: number): string => {
+    for (let i = index - 1; i >= 0; i -= 1) {
+      const n = block.nodes[i];
+      if (n.kind === 'section' || n.kind === 'sub') return n.title;
+    }
+    return block.name;
+  };
+
+  const renderField = (field: Field, label: string) => {
     switch (field.type) {
       case 'text':
         return (
@@ -97,6 +106,7 @@ export default function BlockView({
       case 'longtext':
         return (
           <LongTextInput
+            aria-label={label}
             value={(values[field.key] as string) ?? ''}
             onChange={(v) => setValue(field.key, v)}
             lines={field.lines}
@@ -162,7 +172,7 @@ export default function BlockView({
         }
         return (
           <div key={i} id={`field-${node.field.key}`} className="scroll-mt-32 rounded">
-            {renderField(node.field)}
+            {renderField(node.field, labelFor(i))}
           </div>
         );
       })}

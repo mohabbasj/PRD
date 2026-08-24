@@ -66,6 +66,7 @@ export default function FrsField({
           </div>
           <div className="px-3 py-3">
             <LongTextInput
+              aria-label={`FR-${i + 1}, requirement`}
               value={fr.requirement}
               onChange={(v) => patch(fr._id, { requirement: v })}
               lines={1}
@@ -73,6 +74,7 @@ export default function FrsField({
             />
             <p className="mt-3 text-sub text-muted">Complete when</p>
             <LongTextInput
+              aria-label={`FR-${i + 1}, complete when`}
               value={fr.complete_when}
               onChange={(v) => patch(fr._id, { complete_when: v })}
               lines={1}

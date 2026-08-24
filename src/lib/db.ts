@@ -7,7 +7,10 @@ import { emptyContent, normalizeContent, type PrdContent, type PrdRecord, type P
 import { markPersisted } from './persist';
 import type { Status } from './schema';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'prd.db');
+/** Overridable so the end-to-end suite can run against a throwaway file. */
+const DB_PATH = process.env.PRD_DB_PATH
+  ? path.resolve(process.env.PRD_DB_PATH)
+  : path.join(process.cwd(), 'data', 'prd.db');
 
 let db: Database.Database | null = null;
 

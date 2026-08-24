@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { BLOCKS, HEADER_FIELDS, STATUS_OPTIONS, type Status } from '@/lib/schema';
 import { computeCompletion } from '@/lib/completion';
 import { metricNames, runChecks } from '@/lib/validation';
+import { formatDate } from '@/lib/render';
 import type { FieldValue, PrdContent, PrdRecord, TableRow } from '@/lib/types';
 import { markPersisted } from '@/lib/persist';
 import BlockView from './BlockView';
@@ -13,21 +14,24 @@ import ChecklistView from './ChecklistView';
 type SaveState = 'saved' | 'saving' | 'dirty' | 'error';
 
 const AUTOSAVE_MS = 800;
+const RETRY_MS = 3000;
 
 export default function Editor({ record }: { record: PrdRecord }) {
   const [content, setContent] = useState<PrdContent>(record.content);
   const [activeBlock, setActiveBlock] = useState(BLOCKS[0].id);
   const [saveState, setSaveState] = useState<SaveState>('saved');
+  const [updatedAt, setUpdatedAt] = useState<string | null>(record.updated_at);
   const [jumpTo, setJumpTo] = useState<string | null>(null);
 
   const latest = useRef(content);
   latest.current = content;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firstRender = useRef(true);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** Set when a content change came from us rather than the author, so it need not resave. */
   const suppressAutosave = useRef(false);
 
-  const save = useCallback(async () => {
+  const save = useCallback(async (isRetry = false) => {
     setSaveState('saving');
     const snapshot = latest.current;
     try {
@@ -37,6 +41,8 @@ export default function Editor({ record }: { record: PrdRecord }) {
         body: JSON.stringify({ content: snapshot }),
       });
       if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+      const body = (await res.json()) as { updated_at: string | null };
+      setUpdatedAt(body.updated_at);
       // Only settle to "saved" if nothing was typed while the request was in flight.
       if (latest.current === snapshot) {
         setContent((c) => {
@@ -47,8 +53,13 @@ export default function Editor({ record }: { record: PrdRecord }) {
         });
         setSaveState('saved');
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       setSaveState('error');
+      // One retry covers the usual cause, a dev server restarting mid-keystroke.
+      if (!isRetry) {
+        retryTimer.current = setTimeout(() => void save(true), RETRY_MS);
+      }
     }
   }, [record.id]);
 
@@ -63,8 +74,9 @@ export default function Editor({ record }: { record: PrdRecord }) {
       return;
     }
     setSaveState('dirty');
+    if (retryTimer.current) clearTimeout(retryTimer.current);
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(save, AUTOSAVE_MS);
+    timer.current = setTimeout(() => void save(), AUTOSAVE_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
@@ -75,6 +87,14 @@ export default function Editor({ record }: { record: PrdRecord }) {
     if (timer.current) clearTimeout(timer.current);
     await save();
   }, [save]);
+
+  // The 800ms debounce leaves a small window where a close would lose the last keystroke.
+  useEffect(() => {
+    if (saveState === 'saved') return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [saveState]);
 
   // Cmd/Ctrl+S saves straight away rather than waiting out the debounce.
   useEffect(() => {
@@ -132,11 +152,13 @@ export default function Editor({ record }: { record: PrdRecord }) {
           <input
             value={content.header.feature_name}
             onChange={(e) => setHeader('feature_name', e.target.value)}
+            aria-label="Feature name"
             placeholder="Feature name"
             className="min-w-0 flex-1 bg-transparent text-[15px] font-bold outline-none placeholder:font-normal placeholder:text-hint"
           />
           <select
             value={content.header.status}
+            aria-label="Status"
             onChange={(e) => setHeader('status', e.target.value as Status)}
             className="shrink-0 rounded border border-rule px-2 py-1 text-[11px]"
           >
@@ -228,6 +250,7 @@ export default function Editor({ record }: { record: PrdRecord }) {
                       </th>
                       <td className="border border-rule px-1 py-0.5">
                         <input
+                          aria-label={f.label}
                           value={
                             (content.header[f.key as keyof typeof content.header] as string) ?? ''
                           }
@@ -242,8 +265,8 @@ export default function Editor({ record }: { record: PrdRecord }) {
                       Last Updated
                     </th>
                     <td className="border border-rule px-2 py-1.5 text-[12px] text-muted">
-                      {record.updated_at ? (
-                        new Date(record.updated_at).toISOString().slice(0, 10)
+                      {updatedAt ? (
+                        formatDate(updatedAt.slice(0, 10))
                       ) : (
                         <span className="text-hint">Set automatically on save</span>
                       )}

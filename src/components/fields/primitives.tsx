@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 const inputBase =
   'w-full bg-transparent px-2 py-1 text-[12px] outline-none placeholder:text-hint';
@@ -11,16 +11,19 @@ export function TextInput({
   placeholder,
   onKeyDown,
   bordered = true,
+  'aria-label': ariaLabel,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   bordered?: boolean;
+  'aria-label'?: string;
 }) {
   return (
     <input
       type="text"
+      aria-label={ariaLabel}
       value={value}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
@@ -35,15 +38,18 @@ export function DateInput({
   onChange,
   onKeyDown,
   bordered = true,
+  'aria-label': ariaLabel,
 }: {
   value: string;
   onChange: (v: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   bordered?: boolean;
+  'aria-label'?: string;
 }) {
   return (
     <input
       type="date"
+      aria-label={ariaLabel}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={onKeyDown}
@@ -96,6 +102,7 @@ export function SelectInput({
   placeholder = '—',
   onKeyDown,
   bordered = true,
+  'aria-label': ariaLabel,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -103,12 +110,14 @@ export function SelectInput({
   placeholder?: string;
   onKeyDown?: (e: React.KeyboardEvent<HTMLSelectElement>) => void;
   bordered?: boolean;
+  'aria-label'?: string;
 }) {
   // A value that no longer exists in options is kept and flagged rather than dropped,
   // so renaming a metric never silently wipes the tracking plan row that referenced it.
   const stale = value !== '' && !options.includes(value);
   return (
     <select
+      aria-label={ariaLabel}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={onKeyDown}
@@ -133,11 +142,13 @@ export function LongTextInput({
   onChange,
   lines = 2,
   placeholder,
+  'aria-label': ariaLabel,
 }: {
   value: string;
   onChange: (v: string) => void;
   lines?: number;
   placeholder?: string;
+  'aria-label'?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const minHeight = lines * 28;
@@ -152,6 +163,7 @@ export function LongTextInput({
   return (
     <textarea
       ref={ref}
+      aria-label={ariaLabel}
       value={value}
       placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
@@ -209,19 +221,4 @@ export function MultiCheck({
       ))}
     </div>
   );
-}
-
-/** Keeps the browser from restoring scroll when a field is focused programmatically. */
-export function useScrollTarget(active: string | null, onDone: () => void) {
-  useEffect(() => {
-    if (!active) return;
-    const el = document.getElementById(`field-${active}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.classList.add('ring-2', 'ring-amber-400');
-      const t = setTimeout(() => el.classList.remove('ring-2', 'ring-amber-400'), 1800);
-      return () => clearTimeout(t);
-    }
-    onDone();
-  }, [active, onDone]);
 }

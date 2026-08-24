@@ -69,6 +69,7 @@ export default function StoriesField({
             <span className="text-muted">As a</span>
             <span className="min-w-[9rem] flex-1">
               <TextInput
+                aria-label={`Story ${i + 1}, As a`}
                 value={story.as_a}
                 onChange={(v) => patch(story._id, { as_a: v })}
                 placeholder="user"
@@ -77,6 +78,7 @@ export default function StoriesField({
             <span className="text-muted">, I want</span>
             <span className="min-w-[12rem] flex-[2]">
               <TextInput
+                aria-label={`Story ${i + 1}, I want`}
                 value={story.i_want}
                 onChange={(v) => patch(story._id, { i_want: v })}
                 placeholder="capability"
@@ -85,6 +87,7 @@ export default function StoriesField({
             <span className="text-muted">so that</span>
             <span className="min-w-[12rem] flex-[2]">
               <TextInput
+                aria-label={`Story ${i + 1}, so that`}
                 value={story.so_that}
                 onChange={(v) => patch(story._id, { so_that: v })}
                 placeholder="outcome"
@@ -128,6 +131,7 @@ export default function StoriesField({
                   {(['given', 'when', 'then'] as const).map((key) => (
                     <td key={key} className="border border-rule align-top">
                       <TextInput
+                        aria-label={`Story ${i + 1}, acceptance criterion, ${key}`}
                         value={ac[key]}
                         onChange={(v) => patchAc(story._id, ac._id, { [key]: v })}
                         bordered={false}
