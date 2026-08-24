@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-white text-ink font-doc;
+  }
+  /* Native focus rings are noisy across a form this dense; one consistent ring instead. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ink/25 ring-offset-0;
+  }
+}
+
+@layer components {
+  /* A free-text field is drawn as ruled writing lines, matching the template's
+     dotted-underline blocks. The gradient paints one dotted rule per line height. */
+  .doc-lines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(1.75rem - 1px),
+      theme('colors.dotted') calc(1.75rem - 1px),
+      theme('colors.dotted') 1.75rem
+    );
+    background-attachment: local;
+    line-height: 1.75rem;
+  }
+}
