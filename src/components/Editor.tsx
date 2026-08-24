@@ -70,6 +70,12 @@ export default function Editor({ record }: { record: PrdRecord }) {
     };
   }, [content, save]);
 
+  /** Flushes any pending edit. Exports read from the database, not from this component. */
+  const saveNow = useCallback(async () => {
+    if (timer.current) clearTimeout(timer.current);
+    await save();
+  }, [save]);
+
   // Cmd/Ctrl+S saves straight away rather than waiting out the debounce.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -142,18 +148,24 @@ export default function Editor({ record }: { record: PrdRecord }) {
           </select>
           <SaveIndicator state={saveState} />
           <div className="flex shrink-0 gap-1.5">
-            <span
-              className="cursor-not-allowed rounded border border-rule px-2.5 py-1 text-[11px] text-hint"
-              title="Built in the export stage"
+            <a
+              href={`/prd/${record.id}/print`}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded border border-rule px-2.5 py-1 text-[11px] hover:border-ink"
             >
-              Export PDF
-            </span>
-            <span
-              className="cursor-not-allowed rounded border border-rule px-2.5 py-1 text-[11px] text-hint"
-              title="Built in the export stage"
-            >
-              Export Word
-            </span>
+              Print view
+            </a>
+            <ExportButton
+              href={`/api/prd/${record.id}/export/pdf`}
+              label="Export PDF"
+              onBeforeDownload={saveNow}
+            />
+            <ExportButton
+              href={`/api/prd/${record.id}/export/docx`}
+              label="Export Word"
+              onBeforeDownload={saveNow}
+            />
           </div>
         </div>
       </header>
@@ -284,5 +296,36 @@ function SaveIndicator({ state }: { state: SaveState }) {
     <span className={`shrink-0 whitespace-nowrap text-[11px] ${tone[state]}`} aria-live="polite">
       {label[state]}
     </span>
+  );
+}
+
+/** Saves first, then downloads — an export must never miss the last thing you typed. */
+function ExportButton({
+  href,
+  label,
+  onBeforeDownload,
+}: {
+  href: string;
+  label: string;
+  onBeforeDownload: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          await onBeforeDownload();
+          window.location.href = href;
+        } finally {
+          setBusy(false);
+        }
+      }}
+      className="rounded border border-rule px-2.5 py-1 text-[11px] hover:border-ink disabled:opacity-50"
+    >
+      {busy ? 'Preparing…' : label}
+    </button>
   );
 }

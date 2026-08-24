@@ -170,18 +170,18 @@ export default function PrdList({ prds }: { prds: Row[] }) {
                         Duplicate
                       </button>
                     </form>
-                    <span
-                      className="cursor-not-allowed text-[11px] text-hint"
-                      title="Built in the export stage"
+                    <a
+                      href={`/api/prd/${p.id}/export/pdf`}
+                      className="text-[11px] hover:underline"
                     >
                       PDF
-                    </span>
-                    <span
-                      className="cursor-not-allowed text-[11px] text-hint"
-                      title="Built in the export stage"
+                    </a>
+                    <a
+                      href={`/api/prd/${p.id}/export/docx`}
+                      className="text-[11px] hover:underline"
                     >
                       Word
-                    </span>
+                    </a>
                     {confirming === p.id ? (
                       <form action={deletePrdAction} className="flex items-center gap-1">
                         <input type="hidden" name="id" value={p.id} />
