@@ -24,7 +24,7 @@ npm test                         # everything below, in order
 | --- | --- |
 | `npm run typecheck` | Strict TypeScript, no emit. |
 | `npm run test:template` | Every heading, column header and hint in `docs/PRD_Template_v2.docx` appears verbatim in `src/`. This is the test that stops the app drifting from the template — shorten a hint and it fails. |
-| `npm run test:e2e` | 45 browser checks against a production build. |
+| `npm run test:e2e` | 46 browser checks against a production build. |
 
 `test:e2e` starts the server on its own port with its own throwaway database, so it never
 touches the PRDs you have written. It covers the acceptance criteria directly: fill a PRD

@@ -49,6 +49,11 @@ const setField = (fieldKey, index, value) =>
 
 try {
   // ---------------------------------------------------------------- empty state
+  const failedRequests = [];
+  page.on('response', (r) => {
+    if (r.status() >= 400) failedRequests.push(`${r.status()} ${r.url()}`);
+  });
+
   await page.goto(B + '/', { waitUntil: 'networkidle0' });
   t.check('empty state invites a first PRD', (await text()).includes('No PRDs yet'));
 
@@ -381,6 +386,11 @@ try {
   await settle(1500);
   await page.reload({ waitUntil: 'networkidle0' });
   t.check('delete removes the record', (await page.$$eval('tbody tr', (r) => r.length)) === preDelete - 1);
+  t.check(
+    'no request in the whole run came back 4xx or 5xx',
+    failedRequests.length === 0,
+    failedRequests.join('; ')
+  );
 } catch (error) {
   t.fail('suite ran to completion', error.message);
 } finally {
