@@ -1,11 +1,261 @@
 {
   "version": 1,
   "skills": {
+    "bmad-prd": {
+      "source": "aj-geddes/claude-code-bmad-skills",
+      "sourceType": "github",
+      "skillPath": "bmad-planning-orchestrator/skills/bmad-prd/SKILL.md",
+      "computedHash": "47e0565a7fbd82cc1b177a914e93be6b00ed00892e028e3f73b54faee2376bb0"
+    },
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "computedHash": "b58d55b64742ecd37923985ec7bdfbe678ffbcb9895562abd28c0a32dcacd7fb"
+    },
+    "breakdown-feature-prd": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/breakdown-feature-prd/SKILL.md",
+      "computedHash": "e0a851ff26f6ddc213c390556ede39ac8fa43b76076b4a187c8c759128fe9fce"
+    },
+    "build-tam": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "69ac46c885ae4ea177c81f18271522be73a232e0838fbb78229f49cb18d23f64",
+      "wellKnownDigest": "sha256:517cc1cf6ca9f6c76d9ccf284e4e04becddfbc30f7e816550ca94799ae5fad58"
+    },
+    "clay-to-deepline": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "b17294bd95de1285cfa1d0ba562f011417ff24eebcb2d80ffb0b8ca3158f7465",
+      "wellKnownDigest": "sha256:80719ba459c5a4a931daed4cbb49b36c9549852f1300aa87d3879fd5fccf684d"
+    },
+    "create-prd": {
+      "source": "phuryn/pm-skills",
+      "sourceType": "github",
+      "skillPath": "pm-execution/skills/create-prd/SKILL.md",
+      "computedHash": "5c242d3abb9508f59021ed22936230e555971feab690cbf2a90142e06d10e7ae"
+    },
+    "create-specification": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/create-specification/SKILL.md",
+      "computedHash": "9796c1d33858522eb67ea2fa864993bdad11f5d79832cca9cf64b9a47c610c09"
+    },
+    "deepline-ads-audiences": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "53b89ee33a0bbdc6f7c5b6e8176538121cdf8bff8faf5e500650997f30822163",
+      "wellKnownDigest": "sha256:22a761500d99a3327de907c484353b26c784fe854704024b2b6d8a1d3e0b1f8e"
+    },
+    "deepline-analytics": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "4c87ff7dede76c92b2f3557b2ae971624e4d3fc5605c7ee71f7c4bdfa503cc07",
+      "wellKnownDigest": "sha256:219a6365e3ffed14d67adc3a5447b1fe9cef1b658ca2d5ae39e4c2fa43307f86"
+    },
+    "deepline-engine": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "8c32eaa58db218a3b1f2d4e97d538d357775fa6f2b7e3f3a7347155406a7be60",
+      "wellKnownDigest": "sha256:773e82c976ff8e6e666cf33a0a07173bf4c6b5190515170cbb8cb1313a1b4508"
+    },
+    "deepline-feedback": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "a64e171c1c973c29a608d4ce44b8d0e0f0e503592dfe8d62a654ef1e6673fe05",
+      "wellKnownDigest": "sha256:13f414cf12a43cbaeb7ccf1ffd25e8144e46920a265964b827f26064e2ab7b94"
+    },
+    "deepline-gtm": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "b7148c21abe1359093742727dda52c93217cd19ab2496784301dd78bff8d1c45",
+      "wellKnownDigest": "sha256:1f03f3595dbfc548fefa034d6624a03cac7dd5e741844d60c01700882f298593"
+    },
+    "deepline-monitors": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "ec3bd3a22d2cf001764014522a26f028226c887e38823c47968d849788a1199f",
+      "wellKnownDigest": "sha256:f6016abb588275c6104fed617ae85b532182793ea4167a116bbfa9ae6a269b65"
+    },
+    "deepline-plays": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "6f9625fde929738c909a298a79abaacdb979328d0694982550e50dd1af84a818",
+      "wellKnownDigest": "sha256:e002a83082c54c4e611477717ce0fd7989dc109758b2a5eee464e93827d3e8a5"
+    },
+    "deepline-plays-review": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "1e337a61cfdb6ea377bdb2328344183ec2dafb1ff5d10ac570e5f85fafbc2931",
+      "wellKnownDigest": "sha256:ecd702ec39a75bf28deb83a06d781a047a7c61ff4ae322a44127282535b9281d"
+    },
+    "deepline-pre-research": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "057a57462f0b4930587552172f58685a94ffcb392a89793fe96e195d189d3ee0",
+      "wellKnownDigest": "sha256:7aac635f03dc278873f20874c42ded58500050195ff207a838a44d83eb0c9d60"
+    },
+    "deepline-quickstart": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "abddb17f86a205077347afb57c5598fa1b75771a8e6116d58eae2fd896f304d9",
+      "wellKnownDigest": "sha256:63d0f8be3d13b5d13a7199d13b9f0d025c08e568d7e1cb113b015738bb66b2f4"
+    },
+    "directives": {
+      "source": "vercel-labs/json-render",
+      "sourceType": "github",
+      "skillPath": "skills/directives/SKILL.md",
+      "computedHash": "217b42fe005756912360c2e37d3e45e3f6faa58fd5e88d1ef1ed74c45b43714c"
+    },
+    "find-qualified-titles": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "d888d27b888d37840956dbb7b9669e29624fe976b9bd71d1798476f3e352b45c",
+      "wellKnownDigest": "sha256:cd2c5d4e10baac64c930adfd88213b1f82f5973527aef162c301b9603c88e37a"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "913b9d37d0d54047dd65222bb8c67b2bf04e3cb87dcad1729068d7a8b2c8c396"
+    },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
+    },
+    "gtm-positioning-strategy": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/gtm-positioning-strategy/SKILL.md",
+      "computedHash": "ab8c31ebdb6abb7832e587a3e8755abdfa2e02e852dad1a8e76fd933eb27728e"
+    },
+    "gtm-product-led-growth": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/gtm-product-led-growth/SKILL.md",
+      "computedHash": "3b4c43f619bc1c294d5519a1bcaeb936e3690a90c57bfecbfaed15a6bc4dac4e"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "computedHash": "2449db6ab1ded9581f69fcc56c1f64818112d05e271fd4c5da23c6523f9d3d9d"
+    },
+    "linkedin-url-lookup": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "24e4cc501e1100676b0d15e335c207bb47fccdce2ad5c6eaec8974f83ea64f67",
+      "wellKnownDigest": "sha256:0af57ec8802f818c54b89a0dad3b5686c96a88defbbbdd7b30d763060556f00f"
+    },
+    "niche-signal-discovery": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "d1c7f2b75c6ba46f6a9e91a83928ca49b3ac83d35769fc3a0394dd9006cc6d4a",
+      "wellKnownDigest": "sha256:573f619ce41895d32a5334be087dc68a55d70a32e06f27419a76722bec4eac5c"
+    },
+    "pdf": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pdf/SKILL.md",
+      "computedHash": "cfbc539377088ca7e44a813b30c306327385bbd973cd7a721e1743f60837dd62"
+    },
+    "portfolio-prospecting": {
+      "source": "code.deepline.com",
+      "sourceUrl": "https://code.deepline.com/",
+      "sourceType": "well-known",
+      "computedHash": "cc730c45e889f4dd8d6986e6bb1daa4feec9daa4d6bfc0d0bfccf76020428c54",
+      "wellKnownDigest": "sha256:2f41fbd783f5b77ae3cddaaa4f32a9101371a4718163a799ad637d33608fa937"
+    },
+    "prd": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/prd/SKILL.md",
+      "computedHash": "1f3e1f005fc40fda85d250ae906c8ee4f7e8e833e23adfeca6542c19609fd7cd"
+    },
+    "prd-development": {
+      "source": "deanpeters/product-manager-skills",
+      "sourceType": "github",
+      "skillPath": "skills/prd-development/SKILL.md",
+      "computedHash": "215169c43df9b4c70ecbcf04db3570aed95ff9f02cf0cbb718acf5014441b153"
+    },
+    "prototype": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/prototype/SKILL.md",
+      "computedHash": "d3fc74689bd993e39c44bfae510d014eecffbeec2922764b065377fd1327c0f6"
+    },
+    "stakeholder-update": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "product-management/skills/stakeholder-update/SKILL.md",
+      "computedHash": "2131d6afeaaa12f9bde5b6e151477defeb8eacd1fe819a339bd86e4467b8000f"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "583344c20e90f3654dbb0632f088d89fd9f1dde8ac85e8a644dd12eee59b1380"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "e14e276241805c97dbcfe40dcbea1a3035269cc7293cac4b1832dda41a835e60"
+    },
     "to-spec": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/to-spec/SKILL.md",
       "computedHash": "3fa1a0695d4ea242fae9e569e4d22aa1788623197abb33bfadafae7315789bbf"
+    },
+    "update-skill": {
+      "source": "warpdotdev/common-skills",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/update-skill/SKILL.md",
+      "computedHash": "1e23c5a5c37ed084eced7fa507031e3cdb8e23f09cd5d004e00efd6f66bf200f"
+    },
+    "user-stories": {
+      "source": "phuryn/pm-skills",
+      "sourceType": "github",
+      "skillPath": "pm-execution/skills/user-stories/SKILL.md",
+      "computedHash": "b9ba16cb7178e3e71b84cfb6d8e8226244bd04c1a7a957cf41cb793e567dd0d5"
+    },
+    "user-story": {
+      "source": "deanpeters/product-manager-skills",
+      "sourceType": "github",
+      "skillPath": "skills/user-story/SKILL.md",
+      "computedHash": "ca8f8869c1597af5f979130b9b2805c32e6e985e04cdeefe4c99a9a537360b79"
+    },
+    "user-story-mapping": {
+      "source": "deanpeters/product-manager-skills",
+      "sourceType": "github",
+      "skillPath": "skills/user-story-mapping/SKILL.md",
+      "computedHash": "74d6cac90ccbd8a9adbee48feddb26961268c3919d4db6f0f31260c9eac42068"
+    },
+    "writing-prds": {
+      "source": "refoundai/lenny-skills",
+      "sourceType": "github",
+      "skillPath": "skills/writing-prds/SKILL.md",
+      "computedHash": "b0f43e9e8e90ab3c1aaab9abb5a44464b62bcd3adc97a4ce4160a86281182197"
     }
   }
 }
