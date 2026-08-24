@@ -73,9 +73,17 @@ export interface PrdSummary {
 }
 
 let counter = 0;
+
+/**
+ * Row identity, used as a React key and to address a row for edits. The server seeds a new
+ * document's rows and the browser adds the rest, so the two must not be able to mint the
+ * same id: a counter alone would collide across processes, hence the random suffix.
+ */
 export function rowId(): string {
   counter += 1;
-  return `r${Date.now().toString(36)}${counter.toString(36)}`;
+  return `r${Date.now().toString(36)}-${counter.toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
 }
 
 export function emptyRow(columns: { key: string }[], first?: string): TableRow {

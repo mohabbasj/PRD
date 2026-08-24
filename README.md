@@ -17,15 +17,23 @@ The database is created on first use at `data/prd.db`. Delete that file to start
 
 ```bash
 npm run build && npm run start   # production build
-npm run typecheck                # strict TypeScript, no emit
-npm run build && npm run test:e2e   # end-to-end suite, 41 checks
+npm test                         # everything below, in order
 ```
 
-`test:e2e` drives a real browser against a production build, on its own port and its own
-throwaway database, so it never touches the PRDs you have written. It covers the
-acceptance criteria directly: fill a PRD in, reload, and find it intact; watch the
-checklist flag a missing kill criterion and a metric with no tracking event; download a
-PDF and a DOCX and confirm they are real files with the right names.
+| Command | What it checks |
+| --- | --- |
+| `npm run typecheck` | Strict TypeScript, no emit. |
+| `npm run test:template` | Every heading, column header and hint in `docs/PRD_Template_v2.docx` appears verbatim in `src/`. This is the test that stops the app drifting from the template — shorten a hint and it fails. |
+| `npm run test:e2e` | 45 browser checks against a production build. |
+
+`test:e2e` starts the server on its own port with its own throwaway database, so it never
+touches the PRDs you have written. It covers the acceptance criteria directly: fill a PRD
+in, reload, and find it intact; watch the checklist flag a missing kill criterion and a
+metric with no tracking event; click Export PDF and Export Word and confirm real files
+land with the right names.
+
+`npm install` downloads a Chromium build for Puppeteer. If that step is blocked, the app
+still runs and the Word export still works — only the PDF export needs it.
 
 ## Screens
 
@@ -98,6 +106,18 @@ and flagged instead.
   before it sticks.
 - **Deleting a table row** asks for confirmation only when the row has something in it.
 - Inside a table, `Tab` on the last cell of the last row adds a row and moves into it.
+
+## The template
+
+`docs/PRD_Template_v2.docx` is kept in the repo as the reference the app is measured
+against. `npm run test:template` reads it directly, so it is not decoration — changing the
+template and re-running the suite tells you exactly what the app no longer matches.
+
+Two deliberate departures from it, both because the document is written in English: the
+"Release Note (Arabic)" section is "Release Note", and its Arabic writing prompt is gone.
+The RTL and localization checklist item and the "Help centre article (AR and EN)" launch
+row stay — those describe what the product must support, not what language this document
+is in. The test file lists both waivers with their reasons.
 
 ## Not built
 

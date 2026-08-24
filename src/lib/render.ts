@@ -84,13 +84,11 @@ function tableNode(field: TableField, values: Record<string, unknown>): DocNode 
   const columns: DocColumn[] = field.columns.map((c, i) => ({ label: c.label, width: widths[i] }));
   const stored = (values[field.key] as TableRow[]) ?? [];
 
+  // Only rows the author has actually filled in reach the export; the stock blank rows
+  // a section opens with would otherwise print as gaps in a finished document.
   const flagKey = field.rowFlag?.key;
   const live = stored.filter((r) => rowHasContent(r, flagKey ? [flagKey] : []));
-  const source = live.length > 0 ? live : [];
-
-  const rows = source.map((row) =>
-    field.columns.map((c) => cellText(row, c.key, c.type, field))
-  );
+  const rows = live.map((row) => field.columns.map((c) => cellText(row, c.key, c.type, field)));
 
   // An untouched section still prints its empty rows, so the file doubles as a blank template.
   if (rows.length === 0) {

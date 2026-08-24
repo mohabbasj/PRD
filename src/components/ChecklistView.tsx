@@ -63,12 +63,14 @@ export default function ChecklistView({
                       />
                     ) : (
                       <span
-                        aria-hidden
                         className={`mt-[-1px] shrink-0 text-[14px] leading-tight ${
                           item.ok ? 'text-emerald-700' : 'text-amber-700'
                         }`}
                       >
-                        {item.ok ? '☑' : '☐'}
+                        <span aria-hidden>{item.ok ? '☑' : '☐'}</span>
+                        <span className="sr-only">
+                          {item.ok ? 'Satisfied: ' : 'Not satisfied: '}
+                        </span>
                       </span>
                     )}
                     <div className="min-w-0">

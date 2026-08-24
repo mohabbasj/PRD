@@ -6,6 +6,9 @@
  *
  *   npm run build && npm run test:e2e
  */
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import puppeteer from 'puppeteer';
 import { reporter, SET_VALUE, startServer } from './helpers.mjs';
 
@@ -260,6 +263,44 @@ try {
     blankPdf.length > 20000 && blankPdf.subarray(0, 4).toString() === '%PDF',
     `${blankPdf.length} bytes`
   );
+
+  // -------------------------------------------- the buttons, not just the endpoints
+  const downloads = fs.mkdtempSync(path.join(os.tmpdir(), 'prd-dl-'));
+  const cdp = await page.createCDPSession();
+  await cdp.send('Browser.setDownloadBehavior', {
+    behavior: 'allow',
+    downloadPath: downloads,
+    eventsEnabled: true,
+  });
+  await page.goto(editorUrl, { waitUntil: 'networkidle0' });
+  await page.waitForSelector('input[placeholder="Feature name"]');
+
+  for (const [label, extension] of [
+    ['Export PDF', 'pdf'],
+    ['Export Word', 'docx'],
+  ]) {
+    await page.evaluate((l) => {
+      [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === l).click();
+    }, label);
+    let landed = null;
+    for (let i = 0; i < 60 && !landed; i += 1) {
+      await settle(500);
+      landed = fs
+        .readdirSync(downloads)
+        .find((f) => f.endsWith(`.${extension}`) && !f.endsWith('.crdownload'));
+    }
+    t.check(
+      `the "${label}" button downloads a file`,
+      !!landed && fs.statSync(path.join(downloads, landed)).size > 5000,
+      landed ? `${landed}` : `nothing appeared in ${downloads}`
+    );
+    t.check(
+      `the "${label}" button names the file from the template`,
+      !!landed && /^PRD-instant-payouts-\d{4}-\d{2}-\d{2}\./.test(landed),
+      landed ?? 'no file'
+    );
+  }
+  fs.rmSync(downloads, { recursive: true, force: true });
 
   // ---------------------------------------------------------------- print route
   await page.goto(`${B}/prd/${id}/print`, { waitUntil: 'networkidle0' });

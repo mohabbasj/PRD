@@ -6,7 +6,7 @@ import { BLOCKS, HEADER_FIELDS, STATUS_OPTIONS, type Status } from '@/lib/schema
 import { computeCompletion } from '@/lib/completion';
 import { metricNames, runChecks } from '@/lib/validation';
 import { formatDate } from '@/lib/render';
-import type { FieldValue, PrdContent, PrdRecord, TableRow } from '@/lib/types';
+import type { FieldValue, PrdContent, PrdRecord } from '@/lib/types';
 import { markPersisted } from '@/lib/persist';
 import BlockView from './BlockView';
 import ChecklistView from './ChecklistView';
@@ -91,7 +91,10 @@ export default function Editor({ record }: { record: PrdRecord }) {
   // The 800ms debounce leaves a small window where a close would lose the last keystroke.
   useEffect(() => {
     if (saveState === 'saved') return;
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [saveState]);
@@ -181,11 +184,13 @@ export default function Editor({ record }: { record: PrdRecord }) {
             <ExportButton
               href={`/api/prd/${record.id}/export/pdf`}
               label="Export PDF"
+              fallbackName="PRD.pdf"
               onBeforeDownload={saveNow}
             />
             <ExportButton
               href={`/api/prd/${record.id}/export/docx`}
               label="Export Word"
+              fallbackName="PRD.docx"
               onBeforeDownload={saveNow}
             />
           </div>
@@ -322,33 +327,72 @@ function SaveIndicator({ state }: { state: SaveState }) {
   );
 }
 
-/** Saves first, then downloads — an export must never miss the last thing you typed. */
+/** Reads the server's filename, falling back to something sensible if the header is odd. */
+function filenameFrom(disposition: string | null, fallback: string): string {
+  const match = disposition && /filename="([^"]+)"/.exec(disposition);
+  return match ? match[1] : fallback;
+}
+
+/**
+ * Saves first, then fetches the file and hands it to the browser as a blob.
+ *
+ * Two reasons not to just point the window at the export URL: navigating would trip the
+ * unsaved-changes guard on the way out, and it gives no feedback while Puppeteer spends a
+ * second or two rendering. This way the button stays busy for the whole wait and a failure
+ * can be reported rather than dumping the user on an error page.
+ */
 function ExportButton({
   href,
   label,
+  fallbackName,
   onBeforeDownload,
 }: {
   href: string;
   label: string;
+  fallbackName: string;
   onBeforeDownload: () => Promise<void>;
 }) {
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const run = async () => {
+    setBusy(true);
+    setFailed(false);
+    let objectUrl: string | null = null;
+    try {
+      await onBeforeDownload();
+      const res = await fetch(href);
+      if (!res.ok) throw new Error(`Export failed: ${res.status}`);
+      const blob = await res.blob();
+      objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = filenameFrom(res.headers.get('content-disposition'), fallbackName);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error(error);
+      setFailed(true);
+    } finally {
+      // Revoking immediately can cancel the download in some browsers; give it a moment.
+      const created = objectUrl;
+      if (created) setTimeout(() => URL.revokeObjectURL(created), 30_000);
+      setBusy(false);
+    }
+  };
+
   return (
     <button
       type="button"
       disabled={busy}
-      onClick={async () => {
-        setBusy(true);
-        try {
-          await onBeforeDownload();
-          window.location.href = href;
-        } finally {
-          setBusy(false);
-        }
-      }}
-      className="rounded border border-rule px-2.5 py-1 text-[11px] hover:border-ink disabled:opacity-50"
+      onClick={run}
+      title={failed ? 'Export failed. See the server log.' : undefined}
+      className={`rounded border px-2.5 py-1 text-[11px] disabled:opacity-50 ${
+        failed ? 'border-red-400 text-red-700' : 'border-rule hover:border-ink'
+      }`}
     >
-      {busy ? 'Preparing…' : label}
+      {busy ? 'Preparing…' : failed ? `${label} failed` : label}
     </button>
   );
 }
