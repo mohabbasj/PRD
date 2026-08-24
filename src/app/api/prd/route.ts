@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { createPrd, listPrds } from '@/lib/db';
 
 export async function GET() {
-  return NextResponse.json(listPrds());
+  return NextResponse.json(await listPrds());
 }
 
 export async function POST() {
-  return NextResponse.json(createPrd(), { status: 201 });
+  return NextResponse.json(await createPrd(), { status: 201 });
 }

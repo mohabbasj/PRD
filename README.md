@@ -25,6 +25,7 @@ npm test                         # everything below, in order
 | `npm run typecheck` | Strict TypeScript, no emit. |
 | `npm run test:template` | Every heading, column header and hint in `docs/PRD_Template_v2.docx` appears verbatim in `src/`. This is the test that stops the app drifting from the template — shorten a hint and it fails. |
 | `npm run test:e2e` | 46 browser checks against a production build. |
+| `npm run test:auth` | 15 checks on the login gate, including that the PDF export still works through it. |
 
 `test:e2e` starts the server on its own port with its own throwaway database, so it never
 touches the PRDs you have written. It covers the acceptance criteria directly: fill a PRD
@@ -106,6 +107,53 @@ and flagged instead.
   before it sticks.
 - **Deleting a table row** asks for confirmation only when the row has something in it.
 - Inside a table, `Tab` on the last cell of the last row adds a row and moves into it.
+
+## Deploying
+
+The app was built to run on your own machine, and that is still its best home: one file,
+no accounts, nothing to pay for. Hosting it changes two things that cannot be configured
+away, so both are handled in code rather than pretended about.
+
+**There is no persistent disk on serverless platforms.** A SQLite file written during one
+request is gone by the next. So `src/lib/db.ts` talks to a hosted libSQL database (Turso)
+when `TURSO_DATABASE_URL` is set, and to a local file when it is not. Same SQL, same
+schema, one client library — the local experience is unchanged.
+
+**A public URL means anyone with the link can read, edit and delete every PRD.** Set
+`PRD_PASSWORD` and every route requires a session. Leave it unset locally and there is no
+login, exactly as the brief asked. A deployment with no password set refuses to serve at
+all rather than quietly exposing itself.
+
+### Vercel
+
+1. **Database** — create a free database at [turso.tech](https://turso.tech), then
+   `turso db show <name> --url` and `turso db tokens create <name>`.
+2. **Import the repo** into Vercel. It is a stock Next.js app; the defaults are right.
+3. **Environment variables** — set all of these for Production and Preview:
+
+   | Variable | Value |
+   | --- | --- |
+   | `PRD_PASSWORD` | your password — required, or the app refuses to serve |
+   | `PRD_USERNAME` | `admin`, or whatever you prefer |
+   | `PRD_SESSION_SECRET` | 32 random bytes, hex |
+   | `TURSO_DATABASE_URL` | `libsql://…` from step 1 |
+   | `TURSO_AUTH_TOKEN` | the token from step 1 |
+   | `PUPPETEER_SKIP_DOWNLOAD` | `1` — stops the build pulling a 170MB browser it will not use |
+
+4. **Deploy.**
+
+The PDF route runs on the Node runtime with a 60 second ceiling and launches
+`@sparticuz/chromium`, a Chromium build stripped down to fit inside a function. A cold
+start spends a second or two unpacking it; warm requests reuse the browser. This is the
+one part of the app that is meaningfully more fragile hosted than local — if Vercel ever
+changes its function limits, the Word export keeps working regardless, since it needs no
+browser at all.
+
+### Somewhere with a disk
+
+On Railway, Render, Fly or any VPS, none of the above applies. Mount a volume, point
+`PRD_DB_PATH` at it, set `PRD_PASSWORD`, and run `npm run build && npm run start`. The
+SQLite file and the real Chromium both work as they do on your laptop.
 
 ## The template
 

@@ -1,4 +1,5 @@
 import { listPrds } from '@/lib/db';
+import { authConfig } from '@/lib/auth';
 import PrdList from '@/components/PrdList';
 
 export const dynamic = 'force-dynamic';
@@ -14,9 +15,12 @@ function formatStamp(iso: string | null): string {
   }).format(new Date(iso));
 }
 
-export default function Home() {
+export default async function Home() {
   // Timestamps are formatted here rather than in the client component so the server
   // and browser cannot disagree about the local timezone during hydration.
-  const prds = listPrds().map((p) => ({ ...p, updated_label: formatStamp(p.updated_at) }));
-  return <PrdList prds={prds} />;
+  const prds = (await listPrds()).map((p) => ({
+    ...p,
+    updated_label: formatStamp(p.updated_at),
+  }));
+  return <PrdList prds={prds} authEnabled={authConfig() !== null} />;
 }

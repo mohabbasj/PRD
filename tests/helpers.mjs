@@ -20,13 +20,13 @@ export function freePort() {
  * Starts the production server against a throwaway database, so a test run never
  * touches the PRDs you have actually written.
  */
-export async function startServer() {
+export async function startServer(extraEnv = {}) {
   const port = await freePort();
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'prd-e2e-'));
   const dbPath = path.join(dir, 'test.db');
 
   const child = spawn('npx', ['next', 'start', '--port', String(port)], {
-    env: { ...process.env, PORT: String(port), PRD_DB_PATH: dbPath },
+    env: { ...process.env, PORT: String(port), PRD_DB_PATH: dbPath, ...extraEnv },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   let log = '';

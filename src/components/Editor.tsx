@@ -10,13 +10,20 @@ import type { FieldValue, PrdContent, PrdRecord } from '@/lib/types';
 import { markPersisted } from '@/lib/persist';
 import BlockView from './BlockView';
 import ChecklistView from './ChecklistView';
+import SignOut from './SignOut';
 
 type SaveState = 'saved' | 'saving' | 'dirty' | 'error';
 
 const AUTOSAVE_MS = 800;
 const RETRY_MS = 3000;
 
-export default function Editor({ record }: { record: PrdRecord }) {
+export default function Editor({
+  record,
+  authEnabled,
+}: {
+  record: PrdRecord;
+  authEnabled: boolean;
+}) {
   const [content, setContent] = useState<PrdContent>(record.content);
   const [activeBlock, setActiveBlock] = useState(BLOCKS[0].id);
   const [saveState, setSaveState] = useState<SaveState>('saved');
@@ -193,6 +200,7 @@ export default function Editor({ record }: { record: PrdRecord }) {
               fallbackName="PRD.docx"
               onBeforeDownload={saveNow}
             />
+            {authEnabled && <SignOut />}
           </div>
         </div>
       </header>

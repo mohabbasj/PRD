@@ -4,7 +4,7 @@ import { exportBasename } from '@/lib/render';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const record = getPrd(id);
+  const record = await getPrd(id);
   if (!record) return new Response('Not found', { status: 404 });
 
   const buffer = await buildDocx(record);

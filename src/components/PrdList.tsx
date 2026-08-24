@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { STATUS_OPTIONS, type Status } from '@/lib/schema';
 import type { PrdSummary } from '@/lib/types';
 import { createPrdAction, deletePrdAction, duplicatePrdAction } from '@/app/actions';
+import SignOut from './SignOut';
 
 type Row = PrdSummary & { updated_label: string };
 
@@ -47,7 +48,7 @@ function ChecklistMark({ passed, total }: { passed: number; total: number }) {
   );
 }
 
-export default function PrdList({ prds }: { prds: Row[] }) {
+export default function PrdList({ prds, authEnabled }: { prds: Row[]; authEnabled: boolean }) {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<'All' | Status>('All');
   const [confirming, setConfirming] = useState<string | null>(null);
@@ -70,14 +71,17 @@ export default function PrdList({ prds }: { prds: Row[] }) {
             {prds.length} saved {prds.length === 1 ? 'document' : 'documents'}
           </p>
         </div>
-        <form action={createPrdAction}>
-          <button
-            type="submit"
-            className="rounded bg-ink px-4 py-2 text-[12px] font-semibold text-white hover:bg-black"
-          >
-            New PRD
-          </button>
-        </form>
+        <div className="flex items-center gap-3">
+          {authEnabled && <SignOut />}
+          <form action={createPrdAction}>
+            <button
+              type="submit"
+              className="rounded bg-ink px-4 py-2 text-[12px] font-semibold text-white hover:bg-black"
+            >
+              New PRD
+            </button>
+          </form>
+        </div>
       </header>
 
       {prds.length > 0 && (
