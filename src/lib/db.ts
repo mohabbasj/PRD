@@ -1,12 +1,8 @@
 /**
- * Storage.
- *
- * The brief asked for SQLite in a local file, and that is still what you get running on
- * your own machine. Serverless hosting has no persistent disk, so the same code talks to
- * a hosted libSQL database (Turso) when one is configured — same SQL, same schema, one
- * client library. Set TURSO_DATABASE_URL to switch; leave it unset and nothing changes.
+ * Storage: one table, the whole document in a JSON column, a few columns pulled out for
+ * listing and sorting. Which database is underneath is `driver.ts`'s problem, not this
+ * file's — locally a SQLite file, on a deployment Postgres.
  */
-import { createClient, type Client } from '@libsql/client';
 import fs from 'node:fs';
 import path from 'node:path';
 import { checkSummary } from './validation';
@@ -14,6 +10,7 @@ import { computeCompletion } from './completion';
 import { emptyContent, normalizeContent, type PrdContent, type PrdRecord, type PrdSummary } from './types';
 import { markPersisted } from './persist';
 import type { Status } from './schema';
+import { dialect, openDriver, type Driver } from './driver';
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS prd (
@@ -23,10 +20,10 @@ const SCHEMA = `
     content      TEXT NOT NULL,
     created_at   TEXT NOT NULL,
     updated_at   TEXT
-  );
+  )
 `;
 
-let ready: Promise<Client> | null = null;
+let ready: Promise<Driver> | null = null;
 
 function localFileUrl(): string {
   const file = process.env.PRD_DB_PATH
@@ -36,19 +33,16 @@ function localFileUrl(): string {
   return `file:${file}`;
 }
 
-async function connect(): Promise<Client> {
+async function connect(): Promise<Driver> {
   if (ready) return ready;
   ready = (async () => {
-    const remote = process.env.TURSO_DATABASE_URL;
-    const client = remote
-      ? createClient({ url: remote, authToken: process.env.TURSO_AUTH_TOKEN })
-      : createClient({ url: localFileUrl() });
-
-    await client.execute(SCHEMA);
-    // Indexes are separate statements; execute() takes one at a time.
-    await client.execute(`CREATE INDEX IF NOT EXISTS prd_updated_at ON prd (updated_at DESC)`);
-    await client.execute(`CREATE INDEX IF NOT EXISTS prd_status ON prd (status)`);
-    return client;
+    // Only build the local path when it will be used; a deployment has no writable disk.
+    const driver = await openDriver(dialect() === 'sqlite' ? localFileUrl() : '');
+    await driver.run(SCHEMA);
+    // One statement at a time, so indexes go separately.
+    await driver.run(`CREATE INDEX IF NOT EXISTS prd_updated_at ON prd (updated_at DESC)`);
+    await driver.run(`CREATE INDEX IF NOT EXISTS prd_status ON prd (status)`);
+    return driver;
   })();
   // A failed connection must not be cached, or every later request inherits the failure.
   ready.catch(() => {
@@ -86,10 +80,10 @@ export async function listPrds(): Promise<PrdSummary[]> {
   const db = await connect();
   // Newest first. A duplicate has no updated_at yet, so fall back to created_at
   // rather than letting fresh copies sink to the bottom of the list.
-  const result = await db.execute(
+  const rows = await db.all<Row>(
     `SELECT * FROM prd ORDER BY COALESCE(updated_at, created_at) DESC`
   );
-  return (result.rows as unknown as Row[]).map((row) => {
+  return rows.map((row) => {
     const rec = hydrate(row);
     return {
       id: rec.id,
@@ -106,8 +100,7 @@ export async function listPrds(): Promise<PrdSummary[]> {
 
 export async function getPrd(id: string): Promise<PrdRecord | null> {
   const db = await connect();
-  const result = await db.execute({ sql: `SELECT * FROM prd WHERE id = ?`, args: [id] });
-  const row = (result.rows as unknown as Row[])[0];
+  const [row] = await db.all<Row>(`SELECT * FROM prd WHERE id = ?`, [id]);
   return row ? hydrate(row) : null;
 }
 
@@ -115,11 +108,11 @@ export async function createPrd(): Promise<PrdRecord> {
   const db = await connect();
   const id = newId();
   const content = emptyContent();
-  await db.execute({
-    sql: `INSERT INTO prd (id, feature_name, status, content, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, NULL)`,
-    args: [id, '', content.header.status, JSON.stringify(content), new Date().toISOString()],
-  });
+  await db.run(
+    `INSERT INTO prd (id, feature_name, status, content, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, NULL)`,
+    [id, '', content.header.status, JSON.stringify(content), new Date().toISOString()]
+  );
   return (await getPrd(id))!;
 }
 
@@ -128,16 +121,16 @@ export async function savePrd(id: string, raw: unknown): Promise<PrdRecord | nul
   const existing = await getPrd(id);
   if (!existing) return null;
   const content = markPersisted(normalizeContent(raw));
-  await db.execute({
-    sql: `UPDATE prd SET feature_name = ?, status = ?, content = ?, updated_at = ? WHERE id = ?`,
-    args: [
+  await db.run(
+    `UPDATE prd SET feature_name = ?, status = ?, content = ?, updated_at = ? WHERE id = ?`,
+    [
       content.header.feature_name,
       content.header.status,
       JSON.stringify(content),
       new Date().toISOString(),
       id,
-    ],
-  });
+    ]
+  );
   return getPrd(id);
 }
 
@@ -154,17 +147,16 @@ export async function duplicatePrd(id: string): Promise<PrdRecord | null> {
     },
   };
   const copyId = newId();
-  await db.execute({
+  await db.run(
     // updated_at stays NULL: the copy has not been edited yet.
-    sql: `INSERT INTO prd (id, feature_name, status, content, created_at, updated_at)
-          VALUES (?, ?, 'Draft', ?, ?, NULL)`,
-    args: [copyId, content.header.feature_name, JSON.stringify(content), new Date().toISOString()],
-  });
+    `INSERT INTO prd (id, feature_name, status, content, created_at, updated_at)
+     VALUES (?, ?, 'Draft', ?, ?, NULL)`,
+    [copyId, content.header.feature_name, JSON.stringify(content), new Date().toISOString()]
+  );
   return getPrd(copyId);
 }
 
 export async function deletePrd(id: string): Promise<boolean> {
   const db = await connect();
-  const result = await db.execute({ sql: `DELETE FROM prd WHERE id = ?`, args: [id] });
-  return result.rowsAffected > 0;
+  return (await db.run(`DELETE FROM prd WHERE id = ?`, [id])) > 0;
 }

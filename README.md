@@ -115,29 +115,30 @@ no accounts, nothing to pay for. Hosting it changes two things that cannot be co
 away, so both are handled in code rather than pretended about.
 
 **There is no persistent disk on serverless platforms.** A SQLite file written during one
-request is gone by the next. So `src/lib/db.ts` talks to a hosted libSQL database (Turso)
-when `TURSO_DATABASE_URL` is set, and to a local file when it is not. Same SQL, same
-schema, one client library — the local experience is unchanged.
+request is gone by the next. So the storage layer sits behind a small seam (`src/lib/driver.ts`):
+a local SQLite file when `DATABASE_URL` is unset, Postgres when it is set. Two drivers, the
+same SQL with `?` placeholders, one table. The local experience is unchanged.
 
 **A public URL means anyone with the link can read, edit and delete every PRD.** Set
 `PRD_PASSWORD` and every route requires a session. Leave it unset locally and there is no
 login, exactly as the brief asked. A deployment with no password set refuses to serve at
 all rather than quietly exposing itself.
 
-### Vercel
+### Vercel, with Supabase for the database
 
-1. **Database** — create a free database at [turso.tech](https://turso.tech), then
-   `turso db show <name> --url` and `turso db tokens create <name>`.
+1. **Database** — at [supabase.com](https://supabase.com), create a project. Then
+   **Connect** → **App Frameworks**, and copy the **Transaction pooler** string (port
+   6543). That is the one built for serverless; the direct connection on 5432 will run out
+   of connections. The app creates its own table on first request — no migration to run.
 2. **Import the repo** into Vercel. It is a stock Next.js app; the defaults are right.
-3. **Environment variables** — set all of these for Production and Preview:
+3. **Environment variables** — set these for Production and Preview:
 
    | Variable | Value |
    | --- | --- |
    | `PRD_PASSWORD` | your password — required, or the app refuses to serve |
    | `PRD_USERNAME` | `admin`, or whatever you prefer |
    | `PRD_SESSION_SECRET` | 32 random bytes, hex |
-   | `TURSO_DATABASE_URL` | `libsql://…` from step 1 |
-   | `TURSO_AUTH_TOKEN` | the token from step 1 |
+   | `DATABASE_URL` | the transaction pooler string from step 1 |
    | `PUPPETEER_SKIP_DOWNLOAD` | `1` — stops the build pulling a 170MB browser it will not use |
 
 4. **Deploy.**
@@ -148,6 +149,14 @@ start spends a second or two unpacking it; warm requests reuse the browser. This
 one part of the app that is meaningfully more fragile hosted than local — if Vercel ever
 changes its function limits, the Word export keeps working regardless, since it needs no
 browser at all.
+
+Both suites run against Postgres too, which is how the driver seam is verified rather than
+assumed:
+
+```bash
+DATABASE_URL=postgres://…  npm run test:e2e
+DATABASE_URL=postgres://…  npm run test:auth
+```
 
 ### Somewhere with a disk
 
