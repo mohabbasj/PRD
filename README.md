@@ -124,7 +124,17 @@ same SQL with `?` placeholders, one table. The local experience is unchanged.
 login, exactly as the brief asked. A deployment with no password set refuses to serve at
 all rather than quietly exposing itself.
 
-### Vercel, with Supabase for the database
+### The short way
+
+```bash
+bash scripts/deploy.sh
+```
+
+It installs the Vercel CLI if you do not have it, signs you in, creates the project,
+sets every environment variable, and deploys. The one thing it asks for is the database
+connection string, because that is the only value it cannot work out on its own.
+
+### Vercel, by hand
 
 1. **Database** — at [supabase.com](https://supabase.com), create a project. Then
    **Connect** → **App Frameworks**, and copy the **Transaction pooler** string (port
