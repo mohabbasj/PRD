@@ -172,6 +172,18 @@ DATABASE_URL=postgres://…  npm run test:e2e
 DATABASE_URL=postgres://…  npm run test:auth
 ```
 
+### When the database will not connect
+
+Sign in and open `/api/health`. It checks the connection string one property at a time —
+set at all, parses, is Postgres rather than a Supabase API URL, carries a real password
+rather than the `[YOUR-PASSWORD]` placeholder, points at the pooler rather than the direct
+host, uses port 6543 — and then actually opens a connection. It names the first thing that
+is wrong instead of leaving you to guess, and never returns the password.
+
+The direct connection (`db.<ref>.supabase.co:5432`) resolves to IPv6 only, and serverless
+functions have no IPv6 route to it. It cannot work from Vercel however correct the
+password is; the transaction pooler is not a preference here.
+
 ### Somewhere with a disk
 
 On Railway, Render, Fly or any VPS, none of the above applies. Mount a volume, point

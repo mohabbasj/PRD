@@ -11,7 +11,13 @@ import { SESSION_COOKIE, authConfig, isHosted, verifySession } from '@/lib/auth'
 export async function middleware(req: NextRequest) {
   // A deployment with no database would fall back to a SQLite file on a read-only disk
   // and fail on the first write with nothing useful in the response. Say so instead.
-  if (isHosted() && !process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
+  // The health check exists to diagnose exactly this, so it has to stay reachable.
+  if (
+    req.nextUrl.pathname !== '/api/health' &&
+    isHosted() &&
+    !process.env.DATABASE_URL &&
+    !process.env.POSTGRES_URL
+  ) {
     return new NextResponse(
       'This deployment has no DATABASE_URL set. Serverless has no persistent disk, so ' +
         'there is nowhere to save a PRD. Set DATABASE_URL to a Postgres connection ' +
