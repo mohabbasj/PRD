@@ -70,9 +70,13 @@ stored document is missing, so a new field appears in existing PRDs without a mi
 
 ### Exports
 
-**PDF** — Puppeteer renders `/prd/[id]/print` to A4 with the template's margins (900 twips
-top and bottom, 720 each side). The browser is reused between exports rather than
-relaunched.
+**PDF** — Puppeteer renders the document to A4 with the template's margins (900 twips top
+and bottom, 720 each side). The exporter renders the print component to an HTML string and
+hands it straight to the browser rather than fetching `/prd/[id]/print` over HTTP: a fetch
+has to survive everything sitting in front of the app, and on Vercel the platform's
+deployment protection intercepted it and the export came back as a PDF of Vercel's own
+login page. Nothing is fetched now, so nothing can be substituted for it. The route still
+exists to look at. The browser is reused between exports rather than relaunched.
 
 **DOCX** — built with the `docx` package from the template's own measurements. Four things
 matter for a file that survives Word and Google Docs alike, and all four are enforced:

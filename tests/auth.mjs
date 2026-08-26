@@ -56,6 +56,14 @@ try {
     `got ${anonPrint.status}`
   );
 
+  // The export renders its own markup, so no token can open the print route either.
+  const tokenPrint = await fetch(`${B}/prd/anything/print?t=anything`, { redirect: 'manual' });
+  t.check(
+    'no query token gets past the login',
+    tokenPrint.status === 307 || tokenPrint.status === 302,
+    `got ${tokenPrint.status}`
+  );
+
   // ------------------------------------------------------------- wrong credentials
   await signIn(USER, 'not-the-password');
   t.check('a wrong password is rejected', page.url().includes('/login'));
@@ -128,6 +136,15 @@ try {
     'the PDF contains the document, not the login screen',
     pdf.length > 100_000,
     `${pdf.length} bytes — a login page would render far smaller`
+  );
+
+  // The real regression: a PDF that renders whatever page sits in front of the app.
+  // Checking the byte count is not enough, so read the text out of it.
+  const asText = pdf.toString('latin1');
+  t.check(
+    'the PDF is not a rendering of any login page',
+    !/Login to Vercel|Continue with Email|Sign in to read/i.test(asText),
+    'found login-page wording inside the PDF'
   );
 
   const anonExport = await fetch(`${B}/api/prd/${id}/export/pdf`);

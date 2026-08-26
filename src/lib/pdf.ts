@@ -47,18 +47,18 @@ async function getBrowser(): Promise<Browser> {
 }
 
 /**
- * Renders the print route to A4 with the template's margins: 900 twips top and bottom,
- * 720 each side. The print stylesheet drops the page's own padding under print media, so
+ * Renders the document to A4 with the template's margins: 900 twips top and bottom, 720
+ * each side. The print stylesheet drops the page's own padding under print media, so
  * these margins are the only ones applied.
+ *
+ * Takes the HTML directly. Nothing is fetched, so nothing in front of the app — its own
+ * login, the host's deployment protection — can substitute a different page for it.
  */
-export async function renderPdf(printUrl: string): Promise<Buffer> {
+export async function renderPdf(html: string): Promise<Buffer> {
   const browser = await getBrowser();
   const page = await browser.newPage();
   try {
-    const response = await page.goto(printUrl, { waitUntil: 'networkidle0', timeout: 30_000 });
-    if (!response || !response.ok()) {
-      throw new Error(`Print view returned ${response?.status() ?? 'no response'}`);
-    }
+    await page.setContent(html, { waitUntil: 'load', timeout: 30_000 });
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,

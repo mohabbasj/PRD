@@ -2,11 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { SESSION_COOKIE, authConfig, isHosted, verifySession } from '@/lib/auth';
 
 /**
- * Gate everything behind a session once a password is configured.
- *
- * Two deliberate exceptions. The login screen and its endpoint, obviously. And a signed
- * one-off token on the print route, because the PDF export drives a headless browser that
- * fetches that page from the outside and carries no cookie of its own.
+ * Gate everything behind a session once a password is configured. The login screen and its
+ * endpoint are the only exceptions — the PDF export renders its own markup rather than
+ * fetching the print route, so it needs no way past this.
  */
 export async function middleware(req: NextRequest) {
   // A deployment with no database would fall back to a SQLite file on a read-only disk
@@ -41,15 +39,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const { pathname, searchParams } = req.nextUrl;
+  const { pathname } = req.nextUrl;
 
   if (pathname === '/login' || pathname === '/api/auth/login') return NextResponse.next();
-
-  // The export's headless browser authenticates with a short-lived signed token instead.
-  if (pathname.endsWith('/print')) {
-    const token = searchParams.get('t');
-    if (token && (await verifySession(token, config.secret))) return NextResponse.next();
-  }
 
   if (await verifySession(req.cookies.get(SESSION_COOKIE)?.value, config.secret)) {
     return NextResponse.next();
