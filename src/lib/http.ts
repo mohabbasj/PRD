@@ -29,3 +29,23 @@ export function publicOrigin(req: Request): string {
   }
   return new URL(req.url).origin;
 }
+
+/**
+ * Turns a storage failure into a response that says something.
+ *
+ * A misconfigured deployment used to surface as an empty 500, which tells whoever is
+ * looking at it nothing at all. The detail goes to the server log; the response carries
+ * enough to act on without ever echoing the connection string back to the caller.
+ */
+export function storageError(error: unknown): Response {
+  console.error('Storage error', error);
+  const configured = !!(process.env.DATABASE_URL || process.env.POSTGRES_URL);
+  const message = configured
+    ? 'The database rejected the request. Check that DATABASE_URL points at the ' +
+      'transaction pooler (port 6543) and that its password is correct.'
+    : 'No DATABASE_URL is configured, so there is nowhere to save a PRD.';
+  return new Response(JSON.stringify({ error: message }), {
+    status: 503,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}

@@ -9,6 +9,17 @@ import { SESSION_COOKIE, authConfig, isHosted, verifySession } from '@/lib/auth'
  * fetches that page from the outside and carries no cookie of its own.
  */
 export async function middleware(req: NextRequest) {
+  // A deployment with no database would fall back to a SQLite file on a read-only disk
+  // and fail on the first write with nothing useful in the response. Say so instead.
+  if (isHosted() && !process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
+    return new NextResponse(
+      'This deployment has no DATABASE_URL set. Serverless has no persistent disk, so ' +
+        'there is nowhere to save a PRD. Set DATABASE_URL to a Postgres connection ' +
+        'string in the project environment variables and redeploy.',
+      { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+    );
+  }
+
   const config = authConfig();
 
   if (!config) {

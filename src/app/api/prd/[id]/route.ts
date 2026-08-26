@@ -2,18 +2,28 @@ import { NextResponse } from 'next/server';
 import { deletePrd, getPrd, savePrd } from '@/lib/db';
 import { checkSummary } from '@/lib/validation';
 import { computeCompletion } from '@/lib/completion';
+import { storageError } from '@/lib/http';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const record = await getPrd(id);
-  if (!record) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(record);
+  try {
+    const record = await getPrd(id);
+    if (!record) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json(record);
+  } catch (error) {
+    return storageError(error);
+  }
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await req.json();
-  const record = await savePrd(id, body?.content);
+  let record;
+  try {
+    record = await savePrd(id, body?.content);
+  } catch (error) {
+    return storageError(error);
+  }
   if (!record) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json({
     updated_at: record.updated_at,
