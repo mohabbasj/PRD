@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "functions": {
+    "src/app/api/prd/[id]/export/pdf/route.ts": {
+      "memory": 1769,
+      "maxDuration": 60
+    }
+  }
+}

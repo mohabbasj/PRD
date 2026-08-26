@@ -153,6 +153,10 @@ connection string, because that is the only value it cannot work out on its own.
 
 4. **Deploy.**
 
+`vercel.json` gives the PDF route 1769MB — Chromium needs considerably more than the
+default, and the symptom of too little is a function that dies mid-render with nothing
+useful in the log.
+
 The PDF route runs on the Node runtime with a 60 second ceiling and launches
 `@sparticuz/chromium`, a Chromium build stripped down to fit inside a function. A cold
 start spends a second or two unpacking it; warm requests reuse the browser. This is the
