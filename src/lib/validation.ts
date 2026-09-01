@@ -71,38 +71,6 @@ const RULES: Rule[] = [
       return missing.length ? `No representative named in ${list(missing)}.` : undefined;
     },
   },
-  {
-    id: 'input_source_date',
-    label: 'Every requirement input has a named source and a date',
-    kind: 'auto',
-    blockId: 'context',
-    group: 'BLOCK 01 - CONTEXT',
-    fieldKey: 'requirement_inputs',
-    run: (c) => {
-      const live = liveRows(c, 'requirement_inputs');
-      if (live.length === 0) return 'No requirement inputs recorded yet.';
-      const noSource = live.filter(({ row }) => !str(row.source)).map(({ n }) => n);
-      if (noSource.length) return `No source named in ${list(noSource)}.`;
-      const noDate = live.filter(({ row }) => !/\d/.test(str(row.method))).map(({ n }) => n);
-      return noDate.length ? `No date in "Method and date" for ${list(noDate)}.` : undefined;
-    },
-  },
-  {
-    id: 'outstanding_owner_date',
-    label: 'Every outstanding input has an owner and a needed-by date',
-    kind: 'auto',
-    blockId: 'context',
-    group: 'BLOCK 01 - CONTEXT',
-    fieldKey: 'outstanding_inputs',
-    run: (c) => {
-      const live = liveRows(c, 'outstanding_inputs');
-      const missing = live
-        .filter(({ row }) => !str(row.who) || !str(row.needed_by))
-        .map(({ n }) => n);
-      return missing.length ? `Missing an owner or a needed-by date in ${list(missing)}.` : undefined;
-    },
-  },
-
   // ---- BLOCK 02 - DIRECTION ----
   {
     id: 'primary_metric_complete',

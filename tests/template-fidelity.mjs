@@ -21,6 +21,21 @@ const TEMPLATE = path.join(process.cwd(), 'docs', 'PRD_Template_v2.docx');
 const ALLOWED = [
   ['Release Note (Arabic)', 'The document is written in English; the section is "Release Note".'],
   ['اكتب هنا بالعربية', 'The Arabic writing prompt goes with the Arabic release note.'],
+
+  // Requirement Inputs and Inputs still outstanding were dropped at the author's request.
+  // Their headings, hint and column labels go with them.
+  ['Requirement Inputs', 'Section removed at the author\'s request.'],
+  [
+    'Where each requirement came from. One row per source. A requirement with no row here is an assumption, not a requirement, and belongs in the Assumptions table.',
+    'Hint belongs to the removed Requirement Inputs section.',
+  ],
+  ['Source (person / team / system)', 'Column of the removed Requirement Inputs table.'],
+  ['Method and date', 'Column of the removed Requirement Inputs table.'],
+  ['What we learned', 'Column of the removed Requirement Inputs table.'],
+  ['Where it landed (FR / Story / rejected)', 'Column of the removed Requirement Inputs table.'],
+  ['Inputs still outstanding', 'Section removed at the author\'s request.'],
+  ['What we still need', 'Column of the removed Inputs still outstanding table.'],
+  ['Who we need it from', 'Column of the removed Inputs still outstanding table.'],
 ];
 
 const xml = readZipEntry(fs.readFileSync(TEMPLATE), 'word/document.xml').toString('utf8');

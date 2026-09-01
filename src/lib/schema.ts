@@ -144,39 +144,6 @@ export const BLOCKS: Block[] = [
       { kind: 'field', field: { type: 'longtext', key: 'affected_population', lines: 1 } },
       { kind: 'sub', title: 'Cost of inaction' },
       { kind: 'field', field: { type: 'longtext', key: 'cost_of_inaction', lines: 1 } },
-      {
-        kind: 'section',
-        title: 'Requirement Inputs',
-        hint: 'Where each requirement came from. One row per source. A requirement with no row here is an assumption, not a requirement, and belongs in the Assumptions table.',
-      },
-      {
-        kind: 'field',
-        field: {
-          type: 'table',
-          key: 'requirement_inputs',
-          columns: [
-            { key: 'source', label: 'Source (person / team / system)', type: 'text', w: 1 },
-            { key: 'method', label: 'Method and date', type: 'text', w: 1 },
-            { key: 'learned', label: 'What we learned', type: 'text', w: 1 },
-            { key: 'landed', label: 'Where it landed (FR / Story / rejected)', type: 'text', w: 1 },
-          ],
-          blankRows: 4,
-        },
-      },
-      { kind: 'sub', title: 'Inputs still outstanding' },
-      {
-        kind: 'field',
-        field: {
-          type: 'table',
-          key: 'outstanding_inputs',
-          columns: [
-            { key: 'what', label: 'What we still need', type: 'text', w: 1 },
-            { key: 'who', label: 'Who we need it from', type: 'text', w: 1 },
-            { key: 'needed_by', label: 'Needed by', type: 'date', w: 1 },
-          ],
-          blankRows: 2,
-        },
-      },
     ],
   },
   {

@@ -94,7 +94,7 @@ try {
     'flags a metric with no tracking event',
     checklist.includes('No tracking event feeds "Payout completion rate", "Support ticket volume"')
   );
-  t.check('banner counts what is outstanding', /\d+ of 18 items are outstanding/.test(checklist));
+  t.check('banner counts what is outstanding', /\d+ of 16 items are outstanding/.test(checklist));
 
   // ------------------------------------------------- click through and fix it
   await page.evaluate(() => {
@@ -314,7 +314,7 @@ try {
   t.check(
     'the print view uses the template wording verbatim',
     printed.includes('Any unchecked box means this is not ready for engineering') &&
-      printed.includes('A requirement with no row here is an assumption')
+      printed.includes('Every FR needs the exact state transition that marks it complete')
   );
   const tablesAreTables = await page.evaluate(
     () =>
@@ -328,7 +328,7 @@ try {
   await page.goto(B + '/', { waitUntil: 'networkidle0' });
   const listed = await text();
   t.check('the list shows the saved PRD', listed.includes('Instant Payouts'));
-  t.check('the list shows a checklist marker', /\d+\/18/.test(listed));
+  t.check('the list shows a checklist marker', /\d+\/16/.test(listed));
 
   const rowsBefore = await page.$$eval('tbody tr', (r) => r.length);
   await page.evaluate(() => {

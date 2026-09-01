@@ -88,7 +88,7 @@ its headings and blank rows, so an untouched PRD exports as a usable blank form.
 
 ### The pre-review checklist
 
-Eighteen items, grouped by block as the template groups them. Fifteen are computed from
+Sixteen items, grouped by block as the template groups them. Thirteen are computed from
 the document; three are ticked by hand. An unsatisfied computed check says what is missing
 and links to the field, so `Rollout has a kill criterion` reads
 *"The rollout plan has no kill criteria. Go to it"*.
@@ -200,8 +200,10 @@ SQLite file and the real Chromium both work as they do on your laptop.
 against. `npm run test:template` reads it directly, so it is not decoration — changing the
 template and re-running the suite tells you exactly what the app no longer matches.
 
-Two deliberate departures from it, both because the document is written in English: the
-"Release Note (Arabic)" section is "Release Note", and its Arabic writing prompt is gone.
+Deliberate departures from it: the "Release Note (Arabic)" section is "Release Note" and
+its Arabic writing prompt is gone, both because the document is written in English; and
+the "Requirement Inputs" and "Inputs still outstanding" sections were dropped at the
+author's request, taking their two checklist items with them.
 The RTL and localization checklist item and the "Help centre article (AR and EN)" launch
 row stay — those describe what the product must support, not what language this document
 is in. The test file lists both waivers with their reasons.
